@@ -1,23 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+
+import axios from "axios";
+
+import AddTodoForm from "./components/AddTodoForm";
+import SingleTodo from "./components/SingleTodo";
+
+/* 
+  Bir Component'ın Yaşam Döngüsü
+
+  1. Constructor çalışır
+  2. Render Çalışır
+  3. ComponentDidMount çalışır (eğer bu anda bir state değişirse)
+    a. tekrar constructor ve render çalışır
+*/
 
 function App() {
+  const [todos, setTodos] = useState([]);
+  const [didUpdate, setDidUpdate] = useState(false);
+  useEffect(() => {
+    axios
+      .get("http://localhost:3004/todos")
+      .then((res) => {
+        console.log(res.data);
+        setTodos(res.data);
+      })
+      .catch((error) => {
+        alert("Veriler çekilirken bir hata oluştu.");
+      });
+  }, [didUpdate]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container p-5">
+      <AddTodoForm didUpdate={didUpdate} setDidUpdate={setDidUpdate} />
+      {todos.map((todo) => (
+        <SingleTodo
+          key={todo.id}
+          todo={todo}
+          didUpdate={didUpdate}
+          setDidUpdate={setDidUpdate}
+        />
+      ))}
     </div>
   );
 }
